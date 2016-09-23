@@ -4,9 +4,31 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
                                        const int target_x, const int target_y,
                                        const unsigned char *map, const int map_width, const int map_height,
                                        int *output, const int output_size) const {
-  auto start = Point{start_x, start_y};
-  auto target = Point{target_x, target_y};
+  try {
+    auto visited_nodes = Search({start_x, start_y}, {target_x, target_y}, map, map_width, map_height);
+    auto path = ReconstructPath({start_x, start_y}, {target_x, target_y}, visited_nodes);
 
+    if (path.size() > output_size) {
+      return -2;
+    }
+
+    for (int i = 0; i < path.size(); ++i) {
+      output[i] = path[i].y * map_width + path[i].x;
+    }
+
+    return static_cast<int>(path.size());
+  } catch (const std::runtime_error& error) {
+    return -1;
+  }
+}
+
+std::unordered_map<pathfinding::Point,
+                   pathfinding::Point,
+                   pathfinding::PointHasher> pathfinding::PathFinding::Search(const Point &start,
+                                                                              const Point &target,
+                                                                              const unsigned char *map,
+                                                                              const int map_width,
+                                                                              const int map_height) const {
   typedef std::pair<int, Point> PointWithPriority;
   auto frontier =
       std::priority_queue<PointWithPriority, std::vector<PointWithPriority>, std::greater<PointWithPriority>>();
@@ -23,17 +45,7 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
     frontier.pop();
 
     if (current == target) {
-      auto path = ReconstructPath(start, target, came_from);
-
-      if (path.size() > output_size) {
-        return -2;
-      }
-
-      for (int i = 0; i < path.size(); ++i) {
-        output[i] = path[i].y * map_width + path[i].x;
-      }
-
-      return static_cast<int>(path.size());
+      return came_from;
     }
 
     for (auto next : Neighbours(map, map_width, map_height, current)) {
@@ -47,8 +59,8 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
     }
   }
 
-  return -1;
-}
+  throw std::runtime_error("No path found");
+};
 
 std::vector<pathfinding::Point> pathfinding::PathFinding::Neighbours(const unsigned char *map,
                                                                      const int map_width,
