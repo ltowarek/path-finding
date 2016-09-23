@@ -15,3 +15,9 @@ TEST(PathFinding, FindPathNegative) {
   int pOutBuffer[7];
   EXPECT_EQ(pathfinding::PathFinding().FindPath(2, 0, 0, 2, pMap, 3, 3, pOutBuffer, 7), -1);
 }
+
+TEST(PathFinding, FindPathTooSmallBuffer) {
+  unsigned char pMap[] = {1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1};
+  int pOutBuffer[1];
+  EXPECT_EQ(pathfinding::PathFinding().FindPath(0, 0, 1, 2, pMap, 4, 3, pOutBuffer, 1), -2);
+}
