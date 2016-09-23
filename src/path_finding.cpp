@@ -7,18 +7,12 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
   try {
     auto visited_nodes = Search({start_x, start_y}, {target_x, target_y}, map, map_width, map_height);
     auto path = ReconstructPath({start_x, start_y}, {target_x, target_y}, visited_nodes);
-
-    if (path.size() > output_size) {
-      return -2;
-    }
-
-    for (int i = 0; i < path.size(); ++i) {
-      output[i] = path[i].y * map_width + path[i].x;
-    }
-
+    FillOutput(path, map_width, output_size, output);
     return static_cast<int>(path.size());
-  } catch (const PathNotFoundException& error) {
+  } catch (const PathNotFoundException &error) {
     return -1;
+  } catch (const std::range_error &error) {
+    return -2;
   }
 }
 
@@ -113,4 +107,17 @@ std::vector<pathfinding::Point> pathfinding::PathFinding::ReconstructPath(const 
   path.pop_back();
   std::reverse(path.begin(), path.end());
   return path;
+}
+
+void pathfinding::PathFinding::FillOutput(const std::vector<Point> path,
+                                          const int map_width,
+                                          const int output_size,
+                                          int *output) const {
+  if (path.size() > output_size) {
+    throw std::range_error("Path size is bigger than output size");
+  }
+
+  for (int i = 0; i < path.size(); ++i) {
+    output[i] = path[i].y * map_width + path[i].x;
+  }
 }

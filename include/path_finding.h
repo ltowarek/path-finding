@@ -60,6 +60,7 @@ class PathFinding {
   std::vector<Point> ReconstructPath(const Point &start,
                                      const Point &target,
                                      std::unordered_map<Point, Point, PointHasher> &came_from) const;
+  void FillOutput(const std::vector<Point> path, const int map_width, const int output_size, int *output) const;
 };
 }  // pathfinding
 
