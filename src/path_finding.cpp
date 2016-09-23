@@ -61,27 +61,47 @@ std::vector<pathfinding::Point> pathfinding::PathFinding::Neighbours(const unsig
                                                                      const int map_height,
                                                                      const Point &point) const {
   auto neighbours = std::vector<Point>();
-  if ((point.x + 1 < map_width) && (map[point.y * map_width + point.x + 1] == 1)) {
-    auto neighbour = point;
-    neighbour.x += 1;
-    neighbours.push_back(neighbour);
+  if (HasEasternNeighbour(point, map_width, map_height, map)) {
+    neighbours.push_back({point.x + 1, point.y});
   }
-  if ((point.x - 1 >= 0) && (map[point.y * map_width + point.x - 1] == 1)) {
-    auto neighbour = point;
-    neighbour.x -= 1;
-    neighbours.push_back(neighbour);
+  if (HasWesternNeighbour(point, map_width, map_height, map)) {
+    neighbours.push_back({point.x - 1, point.y});
   }
-  if ((point.y + 1 < map_height) && (map[(point.y + 1) * map_width + point.x] == 1)) {
-    auto neighbour = point;
-    neighbour.y += 1;
-    neighbours.push_back(neighbour);
+  if (HasSouthernNeighbour(point, map_width, map_height, map)) {
+    neighbours.push_back({point.x, point.y + 1});
   }
-  if ((point.y - 1 >= 0) && (map[(point.y - 1) * map_width + point.x] == 1)) {
-    auto neighbour = point;
-    neighbour.y -= 1;
-    neighbours.push_back(neighbour);
+  if (HasNorthernNeighbour(point, map_width, map_height, map)) {
+    neighbours.push_back({point.x, point.y - 1});
   }
   return neighbours;
+}
+
+bool pathfinding::PathFinding::HasNorthernNeighbour(const Point &point,
+                                                    const int map_width,
+                                                    const int map_height,
+                                                    const unsigned char *map) const {
+  return (point.y - 1 >= 0) && (map[GetPointId({point.x, point.y - 1}, map_width)] == 1);
+}
+
+bool pathfinding::PathFinding::HasSouthernNeighbour(const Point &point,
+                                                    const int map_width,
+                                                    const int map_height,
+                                                    const unsigned char *map) const {
+  return (point.y + 1 < map_height) && (map[GetPointId({point.x, point.y + 1}, map_width)] == 1);
+}
+
+bool pathfinding::PathFinding::HasEasternNeighbour(const Point &point,
+                                                   const int map_width,
+                                                   const int map_height,
+                                                   const unsigned char *map) const {
+  return (point.x + 1 < map_width) && (map[GetPointId({point.x + 1, point.y}, map_width)] == 1);
+}
+
+bool pathfinding::PathFinding::HasWesternNeighbour(const Point &point,
+                                                   const int map_width,
+                                                   const int map_height,
+                                                   const unsigned char *map) const {
+  return (point.x - 1 >= 0) && (map[GetPointId({point.x - 1, point.y}, map_width)] == 1);
 }
 
 int pathfinding::PathFinding::Cost(const Point &p1, const Point &p2) const {
@@ -120,4 +140,8 @@ void pathfinding::PathFinding::FillOutput(const std::vector<Point> path,
   for (int i = 0; i < path.size(); ++i) {
     output[i] = path[i].y * map_width + path[i].x;
   }
+}
+
+int pathfinding::PathFinding::GetPointId(const Point &point, const int map_width) const {
+  return point.y * map_width + point.x;
 }
