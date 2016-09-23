@@ -17,7 +17,7 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
     }
 
     return static_cast<int>(path.size());
-  } catch (const std::runtime_error& error) {
+  } catch (const PathNotFoundException& error) {
     return -1;
   }
 }
@@ -59,7 +59,7 @@ std::unordered_map<pathfinding::Point,
     }
   }
 
-  throw std::runtime_error("No path found");
+  throw PathNotFoundException();
 };
 
 std::vector<pathfinding::Point> pathfinding::PathFinding::Neighbours(const unsigned char *map,

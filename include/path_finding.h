@@ -33,6 +33,12 @@ struct PointHasher {
   }
 };
 
+class PathNotFoundException: public std::exception {
+  const char *what() const throw () {
+    return "Path not found";
+  }
+};
+
 class PathFinding {
  public:
   int FindPath(const int start_x, const int start_y,
