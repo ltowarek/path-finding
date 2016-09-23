@@ -7,9 +7,9 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
   auto start = Point{start_x, start_y};
   auto target = Point{target_x, target_y};
 
-  typedef std::pair<Point, int> PointWithPriority;
+  typedef std::pair<int, Point> PointWithPriority;
   auto frontier = std::priority_queue<PointWithPriority, std::vector<PointWithPriority>, std::greater<PointWithPriority>>();
-  frontier.emplace(start, Heuristic(start, target));
+  frontier.emplace(Heuristic(start, target), start);
 
   auto came_from = std::unordered_map<Point, Point, PointHasher>();
   auto cost_so_far = std::unordered_map<Point, int, PointHasher>();
@@ -18,7 +18,7 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
   cost_so_far[start] = 0;
 
   while(!frontier.empty()) {
-    auto current = frontier.top().first;
+    auto current = frontier.top().second;
     frontier.pop();
 
     if (current == target) {
@@ -40,7 +40,7 @@ int pathfinding::PathFinding::FindPath(const int start_x, const int start_y,
       if (!cost_so_far.count(next) || new_cost < cost_so_far[next]) {
         cost_so_far[next] = new_cost;
         int priority = new_cost + Heuristic(next, target);
-        frontier.emplace(next, priority);
+        frontier.emplace(priority, next);
         came_from[next] = current;
       }
     }
